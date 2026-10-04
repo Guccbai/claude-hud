@@ -1,13 +1,13 @@
 {
-  "name": "@cometix/ccline-win32-x64",
+  "name": "claude-hud-win32-x64",
   "version": "0.0.0",
-  "description": "Windows x64 binary for CCometixLine",
-  "files": ["ccline.exe"],
+  "description": "Windows x64 binary for Claude HUD",
+  "files": ["claude-hud.exe"],
   "os": ["win32"],
   "cpu": ["x64"],
   "repository": {
     "type": "git",
-    "url": "https://github.com/Haleclipse/CCometixLine"
+    "url": "https://github.com/Guccbai/claude-hud"
   },
   "author": "Haleclipse",
   "license": "MIT"

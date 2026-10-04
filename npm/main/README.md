@@ -1,11 +1,13 @@
-# @cometix/ccline
+# claude-hud
 
-CCometixLine - High-performance Claude Code StatusLine tool
+Claude HUD - High-performance Claude Code StatusLine tool
+
+Forked from [Haleclipse/CCometixLine](https://github.com/Haleclipse/CCometixLine).
 
 ## Installation
 
 ```bash
-npm install -g @cometix/ccline
+npm install -g claude-hud
 ```
 
 ## Features
@@ -18,13 +20,13 @@ npm install -g @cometix/ccline
 
 ## Usage
 
-After installation, ccline is automatically configured for Claude Code at `~/.claude/ccline/ccline`.
+After installation, claude-hud is automatically configured for Claude Code at `~/.claude/claude-hud/claude-hud`.
 
 You can also use it directly:
 
 ```bash
-ccline --help
-ccline --version
+claude-hud --help
+claude-hud --version
 ```
 
 ## For Users in China
@@ -32,11 +34,11 @@ ccline --version
 Use npm mirror for faster installation:
 
 ```bash
-npm install -g @cometix/ccline --registry https://registry.npmmirror.com
+npm install -g claude-hud --registry https://registry.npmmirror.com
 ```
 
 ## More Information
 
-- GitHub: https://github.com/Haleclipse/CCometixLine
-- Issues: https://github.com/Haleclipse/CCometixLine/issues
+- GitHub: https://github.com/Guccbai/claude-hud
+- Issues: https://github.com/Guccbai/claude-hud/issues
 - License: MIT

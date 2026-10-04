@@ -19,27 +19,27 @@ jobs:
         include:
           - target: x86_64-unknown-linux-gnu
             os: ubuntu-22.04
-            name: ccline-linux-x64.tar.gz
+            name: claude-hud-linux-x64.tar.gz
           - target: x86_64-unknown-linux-musl
             os: ubuntu-latest
-            name: ccline-linux-x64-static.tar.gz
+            name: claude-hud-linux-x64-static.tar.gz
           - target: aarch64-unknown-linux-gnu
             os: ubuntu-22.04
-            name: ccline-linux-arm64.tar.gz
+            name: claude-hud-linux-arm64.tar.gz
             use_zigbuild: true
           - target: aarch64-unknown-linux-musl
             os: ubuntu-latest
-            name: ccline-linux-arm64-static.tar.gz
+            name: claude-hud-linux-arm64-static.tar.gz
             use_zigbuild: true
           - target: x86_64-pc-windows-gnu
             os: ubuntu-latest
-            name: ccline-windows-x64.zip
+            name: claude-hud-windows-x64.zip
           - target: x86_64-apple-darwin
             os: macos-latest
-            name: ccline-macos-x64.tar.gz
+            name: claude-hud-macos-x64.tar.gz
           - target: aarch64-apple-darwin
             os: macos-latest
-            name: ccline-macos-arm64.tar.gz
+            name: claude-hud-macos-arm64.tar.gz
 
     steps:
     - name: Checkout
@@ -84,17 +84,17 @@ jobs:
       if: matrix.os != 'windows-latest' && matrix.target != 'x86_64-pc-windows-gnu'
       run: |
         mkdir -p dist
-        cp target/${{ matrix.target }}/release/ccometixline dist/ccline
+        cp target/${{ matrix.target }}/release/claude-hud dist/claude-hud
         cd dist
-        tar czf ../${{ matrix.name }} ccline
+        tar czf ../${{ matrix.name }} claude-hud
 
     - name: Package Windows
       if: matrix.target == 'x86_64-pc-windows-gnu'
       run: |
         mkdir -p dist
-        cp target/${{ matrix.target }}/release/ccometixline.exe dist/ccline.exe
+        cp target/${{ matrix.target }}/release/claude-hud.exe dist/claude-hud.exe
         cd dist
-        zip ../${{ matrix.name }} ccline.exe
+        zip ../${{ matrix.name }} claude-hud.exe
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
@@ -146,32 +146,32 @@ jobs:
         mkdir -p extracted
 
         # macOS x64
-        tar -xzf artifacts/ccline-macos-x64.tar.gz/ccline-macos-x64.tar.gz -C extracted
-        mv extracted/ccline extracted/ccline-darwin-x64
+        tar -xzf artifacts/claude-hud-macos-x64.tar.gz/claude-hud-macos-x64.tar.gz -C extracted
+        mv extracted/claude-hud extracted/claude-hud-darwin-x64
 
         # macOS ARM64
-        tar -xzf artifacts/ccline-macos-arm64.tar.gz/ccline-macos-arm64.tar.gz -C extracted
-        mv extracted/ccline extracted/ccline-darwin-arm64
+        tar -xzf artifacts/claude-hud-macos-arm64.tar.gz/claude-hud-macos-arm64.tar.gz -C extracted
+        mv extracted/claude-hud extracted/claude-hud-darwin-arm64
 
         # Linux x64
-        tar -xzf artifacts/ccline-linux-x64.tar.gz/ccline-linux-x64.tar.gz -C extracted
-        mv extracted/ccline extracted/ccline-linux-x64
+        tar -xzf artifacts/claude-hud-linux-x64.tar.gz/claude-hud-linux-x64.tar.gz -C extracted
+        mv extracted/claude-hud extracted/claude-hud-linux-x64
 
         # Linux musl (static)
-        tar -xzf artifacts/ccline-linux-x64-static.tar.gz/ccline-linux-x64-static.tar.gz -C extracted
-        mv extracted/ccline extracted/ccline-linux-x64-musl
+        tar -xzf artifacts/claude-hud-linux-x64-static.tar.gz/claude-hud-linux-x64-static.tar.gz -C extracted
+        mv extracted/claude-hud extracted/claude-hud-linux-x64-musl
 
         # Linux ARM64
-        tar -xzf artifacts/ccline-linux-arm64.tar.gz/ccline-linux-arm64.tar.gz -C extracted
-        mv extracted/ccline extracted/ccline-linux-arm64
+        tar -xzf artifacts/claude-hud-linux-arm64.tar.gz/claude-hud-linux-arm64.tar.gz -C extracted
+        mv extracted/claude-hud extracted/claude-hud-linux-arm64
 
         # Linux ARM64 musl (static)
-        tar -xzf artifacts/ccline-linux-arm64-static.tar.gz/ccline-linux-arm64-static.tar.gz -C extracted
-        mv extracted/ccline extracted/ccline-linux-arm64-musl
+        tar -xzf artifacts/claude-hud-linux-arm64-static.tar.gz/claude-hud-linux-arm64-static.tar.gz -C extracted
+        mv extracted/claude-hud extracted/claude-hud-linux-arm64-musl
 
         # Windows
-        unzip artifacts/ccline-windows-x64.zip/ccline-windows-x64.zip -d extracted
-        mv extracted/ccline.exe extracted/ccline-win32-x64.exe
+        unzip artifacts/claude-hud-windows-x64.zip/claude-hud-windows-x64.zip -d extracted
+        mv extracted/claude-hud.exe extracted/claude-hud-win32-x64.exe
 
         # List extracted files
         ls -la extracted/
@@ -182,21 +182,21 @@ jobs:
         node npm/scripts/prepare-packages.js
 
         # Copy binaries to platform directories
-        cp extracted/ccline-darwin-x64 npm-publish/darwin-x64/ccline
-        cp extracted/ccline-darwin-arm64 npm-publish/darwin-arm64/ccline
-        cp extracted/ccline-linux-x64 npm-publish/linux-x64/ccline
-        cp extracted/ccline-linux-x64-musl npm-publish/linux-x64-musl/ccline
-        cp extracted/ccline-linux-arm64 npm-publish/linux-arm64/ccline
-        cp extracted/ccline-linux-arm64-musl npm-publish/linux-arm64-musl/ccline
-        cp extracted/ccline-win32-x64.exe npm-publish/win32-x64/ccline.exe
+        cp extracted/claude-hud-darwin-x64 npm-publish/darwin-x64/claude-hud
+        cp extracted/claude-hud-darwin-arm64 npm-publish/darwin-arm64/claude-hud
+        cp extracted/claude-hud-linux-x64 npm-publish/linux-x64/claude-hud
+        cp extracted/claude-hud-linux-x64-musl npm-publish/linux-x64-musl/claude-hud
+        cp extracted/claude-hud-linux-arm64 npm-publish/linux-arm64/claude-hud
+        cp extracted/claude-hud-linux-arm64-musl npm-publish/linux-arm64-musl/claude-hud
+        cp extracted/claude-hud-win32-x64.exe npm-publish/win32-x64/claude-hud.exe
 
         # Set executable permissions for Unix binaries
-        chmod +x npm-publish/darwin-x64/ccline
-        chmod +x npm-publish/darwin-arm64/ccline
-        chmod +x npm-publish/linux-x64/ccline
-        chmod +x npm-publish/linux-x64-musl/ccline
-        chmod +x npm-publish/linux-arm64/ccline
-        chmod +x npm-publish/linux-arm64-musl/ccline
+        chmod +x npm-publish/darwin-x64/claude-hud
+        chmod +x npm-publish/darwin-arm64/claude-hud
+        chmod +x npm-publish/linux-x64/claude-hud
+        chmod +x npm-publish/linux-x64-musl/claude-hud
+        chmod +x npm-publish/linux-arm64/claude-hud
+        chmod +x npm-publish/linux-arm64-musl/claude-hud
 
         # Verify packages
         echo "Package structure:"
@@ -208,11 +208,11 @@ jobs:
       run: |
         # Publish platform packages first
         for platform in darwin-x64 darwin-arm64 linux-x64 linux-x64-musl linux-arm64 linux-arm64-musl win32-x64; do
-          echo "📦 Publishing @cometix/ccline-$platform"
+          echo "📦 Publishing claude-hud-$platform"
           cd npm-publish/$platform
           npm publish --access public
           cd ../..
-          echo "✅ Published @cometix/ccline-$platform"
+          echo "✅ Published claude-hud-$platform"
         done
 
     - name: Wait for NPM registry
@@ -225,9 +225,9 @@ jobs:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       run: |
         cd npm-publish/main
-        echo "📦 Publishing @cometix/ccline"
+        echo "📦 Publishing claude-hud"
         npm publish --access public
-        echo "✅ Published @cometix/ccline"
+        echo "✅ Published claude-hud"
         echo ""
         echo "🎉 NPM packages published successfully!"
-        echo "Install with: npm install -g @cometix/ccline"
+        echo "Install with: npm install -g claude-hud"

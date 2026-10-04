@@ -1,4 +1,4 @@
-# CCometixLine
+# Claude HUD
 
 [English](README.md) | [中文](README.zh.md)
 
@@ -9,7 +9,7 @@ A high-performance Claude Code statusline tool written in Rust with Git integrat
 
 ## Screenshots
 
-![CCometixLine](assets/img1.png)
+![Claude HUD](assets/img1.png)
 
 The statusline shows: Model | Directory | Git Branch Status | Context Window Information
 
@@ -39,28 +39,30 @@ The statusline shows: Model | Directory | Git Branch Status | Context Window Inf
 
 This is a personal fork of [Haleclipse/CCometixLine](https://github.com/Haleclipse/CCometixLine) and is not published to npm. Install by building from source.
 
+Upgrading from `ccline`: on first run, `claude-hud` copies `~/.claude/ccline/` into `~/.claude/claude-hud/` (the old directory is left untouched). Update your `statusLine` command to the new path.
+
 ### Build from Source
 
 Requires the [Rust toolchain](https://rustup.rs/) (stable).
 
 ```bash
-git clone https://github.com/Guccbai/CCometixLine.git
-cd CCometixLine
+git clone https://github.com/Guccbai/claude-hud.git
+cd claude-hud
 cargo build --release
 
 # Linux/macOS
-mkdir -p ~/.claude/ccline
-cp target/release/ccometixline ~/.claude/ccline/ccline
-chmod +x ~/.claude/ccline/ccline
+mkdir -p ~/.claude/claude-hud
+cp target/release/claude-hud ~/.claude/claude-hud/claude-hud
+chmod +x ~/.claude/claude-hud/claude-hud
 
 # Windows (PowerShell)
-New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.claude\ccline"
-copy target\release\ccometixline.exe "$env:USERPROFILE\.claude\ccline\ccline.exe"
+New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.claude\claude-hud"
+copy target\release\claude-hud.exe "$env:USERPROFILE\.claude\claude-hud\claude-hud.exe"
 ```
 
 After installation:
 - ⚙️ Follow the configuration steps below to integrate with Claude Code
-- 🎨 Run `~/.claude/ccline/ccline -c` to open configuration panel for theme selection
+- 🎨 Run `~/.claude/claude-hud/claude-hud -c` to open configuration panel for theme selection
 
 ### Claude Code Configuration
 
@@ -71,7 +73,7 @@ Add to your Claude Code `settings.json`:
 {
   "statusLine": {
     "type": "command",
-    "command": "~/.claude/ccline/ccline",
+    "command": "~/.claude/claude-hud/claude-hud",
     "padding": 0
   }
 }
@@ -82,10 +84,10 @@ Add to your Claude Code `settings.json`:
 ### Update
 
 ```bash
-cd CCometixLine
+cd claude-hud
 git pull
 cargo build --release
-cp target/release/ccometixline ~/.claude/ccline/ccline
+cp target/release/claude-hud ~/.claude/claude-hud/claude-hud
 ```
 
 ## Usage
@@ -94,24 +96,24 @@ cp target/release/ccometixline ~/.claude/ccline/ccline
 
 ```bash
 # Temporarily use specific theme (overrides config file)
-ccline --theme cometix
-ccline --theme minimal
-ccline --theme gruvbox
-ccline --theme nord
-ccline --theme powerline-dark
+claude-hud --theme claude-hud
+claude-hud --theme minimal
+claude-hud --theme gruvbox
+claude-hud --theme nord
+claude-hud --theme powerline-dark
 
-# Or use custom theme files from ~/.claude/ccline/themes/
-ccline --theme my-custom-theme
+# Or use custom theme files from ~/.claude/claude-hud/themes/
+claude-hud --theme my-custom-theme
 ```
 
 ### Claude Code Enhancement
 
 ```bash
 # Disable context warnings and enable verbose mode
-ccline --patch /path/to/claude-code/cli.js
+claude-hud --patch /path/to/claude-code/cli.js
 
 # Example for common installation
-ccline --patch ~/.local/share/fnm/node-versions/v24.4.1/installation/lib/node_modules/@anthropic-ai/claude-code/cli.js
+claude-hud --patch ~/.local/share/fnm/node-versions/v24.4.1/installation/lib/node_modules/@anthropic-ai/claude-code/cli.js
 ```
 
 ## Default Segments
@@ -136,11 +138,11 @@ Token usage percentage based on transcript analysis with context limit tracking.
 
 ## Configuration
 
-CCometixLine supports full configuration via TOML files and interactive TUI:
+Claude HUD supports full configuration via TOML files and interactive TUI:
 
-- **Configuration file**: `~/.claude/ccline/config.toml`
-- **Interactive TUI**: `ccline --config` for real-time editing with preview
-- **Theme files**: `~/.claude/ccline/themes/*.toml` for custom themes
+- **Configuration file**: `~/.claude/claude-hud/config.toml`
+- **Interactive TUI**: `claude-hud --config` for real-time editing with preview
+- **Theme files**: `~/.claude/claude-hud/themes/*.toml` for custom themes
 - **Automatic initialization**: theme files are created automatically on first run
 
 ### Available Segments
@@ -155,7 +157,7 @@ Supported segments: Directory, Git, Model, Usage, Time, Cost, OutputStyle
 
 ### Model Configuration (`models.toml`)
 
-Location: `~/.claude/ccline/models.toml` (auto-created on first run)
+Location: `~/.claude/claude-hud/models.toml` (auto-created on first run)
 
 This file configures how model IDs are displayed and their context window limits. Claude models (Sonnet, Opus, Haiku) are automatically recognized with version extraction — you only need this file for overrides or third-party models.
 
@@ -225,4 +227,4 @@ This project is licensed under the [MIT License](LICENSE).
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=Haleclipse/CCometixLine&type=Date)](https://star-history.com/#Haleclipse/CCometixLine&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=Guccbai/claude-hud&type=Date)](https://star-history.com/#Guccbai/claude-hud&Date)

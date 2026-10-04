@@ -1,18 +1,18 @@
 [package]
-name = "ccometixline"
+name = "claude-hud"
 version = "1.1.2"
 edition = "2021"
-description = "CCometixLine (ccline) - High-performance Claude Code StatusLine tool written in Rust"
+description = "Claude HUD (claude-hud) - High-performance Claude Code StatusLine tool written in Rust, forked from Haleclipse/CCometixLine"
 authors = ["Haleclipse"]
 license = "MIT"
-repository = "https://github.com/Haleclipse/CCometixLine"
+repository = "https://github.com/Guccbai/claude-hud"
 readme = "README.md"
 keywords = ["claude", "statusline", "powerline", "rust", "claude-code"]
 categories = ["command-line-utilities", "development-tools"]
 
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
+serde_json = { version = "1.0", features = ["preserve_order"] }
 clap = { version = "4.0", features = ["derive"] }
 toml = "1.0"
 

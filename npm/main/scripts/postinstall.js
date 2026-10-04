@@ -4,17 +4,17 @@ const os = require('os');
 
 // Silent mode detection
 const silent = process.env.npm_config_loglevel === 'silent' || 
-               process.env.CCLINE_SKIP_POSTINSTALL === '1';
+               process.env.CLAUDE_HUD_SKIP_POSTINSTALL === '1';
 
 if (!silent) {
-  console.log('🚀 Setting up CCometixLine for Claude Code...');
+  console.log('🚀 Setting up Claude HUD for Claude Code...');
 }
 
 try {
   const platform = process.platform;
   const arch = process.arch;
   const homeDir = os.homedir();
-  const claudeDir = path.join(homeDir, '.claude', 'ccline');
+  const claudeDir = path.join(homeDir, '.claude', 'claude-hud');
 
   // Create directory
   fs.mkdirSync(claudeDir, { recursive: true });
@@ -72,14 +72,14 @@ try {
   }
 
   const packageMap = {
-    'darwin-x64': '@cometix/ccline-darwin-x64',
-    'darwin-arm64': '@cometix/ccline-darwin-arm64',
-    'linux-x64': '@cometix/ccline-linux-x64',
-    'linux-x64-musl': '@cometix/ccline-linux-x64-musl',
-    'linux-arm64': '@cometix/ccline-linux-arm64',
-    'linux-arm64-musl': '@cometix/ccline-linux-arm64-musl',
-    'win32-x64': '@cometix/ccline-win32-x64',
-    'win32-ia32': '@cometix/ccline-win32-x64', // Use 64-bit for 32-bit
+    'darwin-x64': 'claude-hud-darwin-x64',
+    'darwin-arm64': 'claude-hud-darwin-arm64',
+    'linux-x64': 'claude-hud-linux-x64',
+    'linux-x64-musl': 'claude-hud-linux-x64-musl',
+    'linux-arm64': 'claude-hud-linux-arm64',
+    'linux-arm64-musl': 'claude-hud-linux-arm64-musl',
+    'win32-x64': 'claude-hud-win32-x64',
+    'win32-ia32': 'claude-hud-win32-x64', // Use 64-bit for 32-bit
   };
 
   const packageName = packageMap[platformKey];
@@ -90,7 +90,7 @@ try {
     process.exit(0);
   }
 
-  const binaryName = platform === 'win32' ? 'ccline.exe' : 'ccline';
+  const binaryName = platform === 'win32' ? 'claude-hud.exe' : 'claude-hud';
   const targetPath = path.join(claudeDir, binaryName);
 
   // Multiple path search strategies for different package managers
@@ -144,7 +144,7 @@ try {
   if (!sourcePath) {
     if (!silent) {
       console.log('Binary package not installed, skipping Claude Code setup');
-      console.log('The global ccline command will still work via npm');
+      console.log('The global claude-hud command will still work via npm');
     }
     process.exit(0);
   }
@@ -167,15 +167,15 @@ try {
   }
 
   if (!silent) {
-    console.log('✨ CCometixLine is ready for Claude Code!');
+    console.log('✨ Claude HUD is ready for Claude Code!');
     console.log(`📍 Location: ${targetPath}`);
-    console.log('🎉 You can now use: ccline --help');
+    console.log('🎉 You can now use: claude-hud --help');
   }
 } catch (error) {
   // Silent failure - don't break installation
   if (!silent) {
     console.log('Note: Could not auto-configure for Claude Code');
-    console.log('The global ccline command will still work.');
-    console.log('You can manually copy ccline to ~/.claude/ccline/ if needed');
+    console.log('The global claude-hud command will still work.');
+    console.log('You can manually copy claude-hud to ~/.claude/claude-hud/ if needed');
   }
 }

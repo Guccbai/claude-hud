@@ -1,4 +1,4 @@
-# CCometixLine
+# Claude HUD
 
 [English](README.md) | [中文](README.zh.md)
 
@@ -9,7 +9,7 @@
 
 ## 截图
 
-![CCometixLine](assets/img1.png)
+![Claude HUD](assets/img1.png)
 
 状态栏显示：模型 | 目录 | Git 分支状态 | 上下文窗口信息
 
@@ -39,28 +39,30 @@
 
 本项目是 [Haleclipse/CCometixLine](https://github.com/Haleclipse/CCometixLine) 的个人 fork，未发布到 npm，请通过源码构建安装。
 
+从 `ccline` 升级：首次运行时，`claude-hud` 会把 `~/.claude/ccline/` 复制到 `~/.claude/claude-hud/`（旧目录保持不变）。请把 `statusLine` 命令改成新路径。
+
 ### 从源码构建
 
 需要 [Rust 工具链](https://rustup.rs/)（stable）。
 
 ```bash
-git clone https://github.com/Guccbai/CCometixLine.git
-cd CCometixLine
+git clone https://github.com/Guccbai/claude-hud.git
+cd claude-hud
 cargo build --release
 
 # Linux/macOS
-mkdir -p ~/.claude/ccline
-cp target/release/ccometixline ~/.claude/ccline/ccline
-chmod +x ~/.claude/ccline/ccline
+mkdir -p ~/.claude/claude-hud
+cp target/release/claude-hud ~/.claude/claude-hud/claude-hud
+chmod +x ~/.claude/claude-hud/claude-hud
 
 # Windows (PowerShell)
-New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.claude\ccline"
-copy target\release\ccometixline.exe "$env:USERPROFILE\.claude\ccline\ccline.exe"
+New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.claude\claude-hud"
+copy target\release\claude-hud.exe "$env:USERPROFILE\.claude\claude-hud\claude-hud.exe"
 ```
 
 安装后：
 - ⚙️ 按照下方提示进行配置以集成到 Claude Code
-- 🎨 运行 `~/.claude/ccline/ccline -c` 打开配置面板进行主题选择
+- 🎨 运行 `~/.claude/claude-hud/claude-hud -c` 打开配置面板进行主题选择
 
 ### Claude Code 配置
 
@@ -71,7 +73,7 @@ copy target\release\ccometixline.exe "$env:USERPROFILE\.claude\ccline\ccline.exe
 {
   "statusLine": {
     "type": "command",
-    "command": "~/.claude/ccline/ccline",
+    "command": "~/.claude/claude-hud/claude-hud",
     "padding": 0
   }
 }
@@ -82,10 +84,10 @@ copy target\release\ccometixline.exe "$env:USERPROFILE\.claude\ccline\ccline.exe
 ### 更新
 
 ```bash
-cd CCometixLine
+cd claude-hud
 git pull
 cargo build --release
-cp target/release/ccometixline ~/.claude/ccline/ccline
+cp target/release/claude-hud ~/.claude/claude-hud/claude-hud
 ```
 
 ## 使用
@@ -94,24 +96,24 @@ cp target/release/ccometixline ~/.claude/ccline/ccline
 
 ```bash
 # 临时使用指定主题（覆盖配置文件设置）
-ccline --theme cometix
-ccline --theme minimal
-ccline --theme gruvbox
-ccline --theme nord
-ccline --theme powerline-dark
+claude-hud --theme claude-hud
+claude-hud --theme minimal
+claude-hud --theme gruvbox
+claude-hud --theme nord
+claude-hud --theme powerline-dark
 
-# 或使用 ~/.claude/ccline/themes/ 目录下的自定义主题
-ccline --theme my-custom-theme
+# 或使用 ~/.claude/claude-hud/themes/ 目录下的自定义主题
+claude-hud --theme my-custom-theme
 ```
 
 ### Claude Code 增强
 
 ```bash
 # 禁用上下文警告并启用详细模式
-ccline --patch /path/to/claude-code/cli.js
+claude-hud --patch /path/to/claude-code/cli.js
 
 # 常见安装路径示例
-ccline --patch ~/.local/share/fnm/node-versions/v24.4.1/installation/lib/node_modules/@anthropic-ai/claude-code/cli.js
+claude-hud --patch ~/.local/share/fnm/node-versions/v24.4.1/installation/lib/node_modules/@anthropic-ai/claude-code/cli.js
 ```
 
 ## 默认段落
@@ -136,11 +138,11 @@ ccline --patch ~/.local/share/fnm/node-versions/v24.4.1/installation/lib/node_mo
 
 ## 配置
 
-CCometixLine 支持通过 TOML 文件和交互式 TUI 进行完整配置：
+Claude HUD 支持通过 TOML 文件和交互式 TUI 进行完整配置：
 
-- **配置文件**: `~/.claude/ccline/config.toml`
-- **交互式 TUI**: `ccline --config` 实时编辑配置并预览效果
-- **主题文件**: `~/.claude/ccline/themes/*.toml` 自定义主题文件
+- **配置文件**: `~/.claude/claude-hud/config.toml`
+- **交互式 TUI**: `claude-hud --config` 实时编辑配置并预览效果
+- **主题文件**: `~/.claude/claude-hud/themes/*.toml` 自定义主题文件
 - **自动初始化**: 首次运行时自动创建主题文件
 
 ### 可用段落
@@ -155,7 +157,7 @@ CCometixLine 支持通过 TOML 文件和交互式 TUI 进行完整配置：
 
 ### 模型配置 (`models.toml`)
 
-文件位置：`~/.claude/ccline/models.toml`（首次运行时自动创建）
+文件位置：`~/.claude/claude-hud/models.toml`（首次运行时自动创建）
 
 此文件配置模型 ID 的显示名称及其上下文窗口限制。Claude 模型（Sonnet、Opus、Haiku）会自动识别并提取版本号，此文件仅用于覆盖默认行为或添加第三方模型支持。
 
@@ -222,4 +224,4 @@ cargo build --release
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=Haleclipse/CCometixLine&type=Date)](https://star-history.com/#Haleclipse/CCometixLine&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=Guccbai/claude-hud&type=Date)](https://star-history.com/#Guccbai/claude-hud&Date)

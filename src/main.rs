@@ -1,20 +1,30 @@
-use ccometixline::cli::Cli;
-use ccometixline::config::{Config, InputData};
-use ccometixline::core::{collect_all_segments, StatusLineGenerator};
-use ccometixline::ui::{MainMenu, MenuResult};
+use claude_hud::cli::Cli;
+use claude_hud::config::{Config, ConfigLoader, InputData};
+use claude_hud::core::{collect_all_segments, StatusLineGenerator};
+use claude_hud::ui::{MainMenu, MenuResult};
 use std::io::{self, IsTerminal};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cli = Cli::parse_args();
 
+    // Copy legacy ~/.claude/ccline state into ~/.claude/claude-hud on first run
+    ConfigLoader::migrate_legacy_config();
+
     if cli.config {
-        ccometixline::ui::run_configurator()?;
+        claude_hud::ui::run_configurator()?;
+        return Ok(());
+    }
+
+    if cli.install_desktop {
+        let dir = claude_hud::desktop::install()?;
+        println!("Desktop HUD installed: {}", dir.display());
+        println!("Open a new Claude Code desktop session to see it.");
         return Ok(());
     }
 
     // Handle Claude Code patcher
     if let Some(claude_path) = cli.patch {
-        use ccometixline::utils::ClaudeCodePatcher;
+        use claude_hud::utils::ClaudeCodePatcher;
 
         println!("🔧 Claude Code Context Warning Disabler");
         println!("Target file: {claude_path}");
@@ -43,7 +53,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Apply theme override if provided
     if let Some(theme) = cli.theme {
-        config = ccometixline::ui::themes::ThemePresets::get_theme(&theme);
+        config = claude_hud::ui::themes::ThemePresets::get_theme(&theme);
     }
 
     // Check if stdin has data
@@ -51,7 +61,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         if let Some(result) = MainMenu::run()? {
             match result {
                 MenuResult::LaunchConfigurator => {
-                    ccometixline::ui::run_configurator()?;
+                    claude_hud::ui::run_configurator()?;
                 }
                 MenuResult::InitConfig | MenuResult::CheckConfig => {}
                 MenuResult::Exit => {}

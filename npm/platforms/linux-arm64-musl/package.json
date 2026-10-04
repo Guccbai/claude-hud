@@ -1,13 +1,13 @@
 {
-  "name": "@cometix/ccline-linux-arm64-musl",
+  "name": "claude-hud-linux-arm64-musl",
   "version": "0.0.0",
-  "description": "Linux ARM64 binary (musl) for CCometixLine",
-  "files": ["ccline"],
+  "description": "Linux ARM64 binary (musl) for Claude HUD",
+  "files": ["claude-hud"],
   "os": ["linux"],
   "cpu": ["arm64"],
   "repository": {
     "type": "git",
-    "url": "https://github.com/Haleclipse/CCometixLine"
+    "url": "https://github.com/Guccbai/claude-hud"
   },
   "author": "Haleclipse",
   "license": "MIT"

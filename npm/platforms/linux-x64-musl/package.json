@@ -1,13 +1,13 @@
 {
-  "name": "@cometix/ccline-linux-x64-musl",
+  "name": "claude-hud-linux-x64-musl",
   "version": "0.0.0",
-  "description": "Linux x64 static binary for CCometixLine (musl libc)",
-  "files": ["ccline"],
+  "description": "Linux x64 static binary for Claude HUD (musl libc)",
+  "files": ["claude-hud"],
   "os": ["linux"],
   "cpu": ["x64"],
   "repository": {
     "type": "git",
-    "url": "https://github.com/Haleclipse/CCometixLine"
+    "url": "https://github.com/Guccbai/claude-hud"
   },
   "author": "Haleclipse",
   "license": "MIT"

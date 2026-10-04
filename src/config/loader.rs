@@ -24,6 +24,52 @@ impl ConfigLoader {
         Ok(config)
     }
 
+    /// One-time migration from the legacy `ccline` state dir.
+    /// Copies `old_dir` into `new_dir` only when `new_dir` is missing and `old_dir` exists.
+    /// Never touches `old_dir`; skips the legacy `ccline` binary at its top level.
+    /// Returns true when a migration happened.
+    pub fn migrate_legacy_dir(old_dir: &Path, new_dir: &Path) -> std::io::Result<bool> {
+        if new_dir.exists() || !old_dir.is_dir() {
+            return Ok(false);
+        }
+
+        fn copy_dir(src: &Path, dst: &Path, top: bool) -> std::io::Result<()> {
+            fs::create_dir_all(dst)?;
+            for entry in fs::read_dir(src)? {
+                let entry = entry?;
+                let name = entry.file_name();
+                if top && (name == "ccline" || name == "ccline.exe") {
+                    continue;
+                }
+                let target = dst.join(&name);
+                if entry.file_type()?.is_dir() {
+                    copy_dir(&entry.path(), &target, false)?;
+                } else {
+                    fs::copy(entry.path(), target)?;
+                }
+            }
+            Ok(())
+        }
+
+        // Copy into a staging dir, then rename, so a failed copy is retried next start
+        let staging = new_dir.with_extension("migrating");
+        let _ = fs::remove_dir_all(&staging);
+        copy_dir(old_dir, &staging, true)?;
+        fs::rename(&staging, new_dir)?;
+        Ok(true)
+    }
+
+    /// Run `migrate_legacy_dir` for `~/.claude/ccline` -> `~/.claude/claude-hud`
+    pub fn migrate_legacy_config() {
+        if let Some(home) = dirs::home_dir() {
+            let claude_dir = home.join(".claude");
+            let _ = Self::migrate_legacy_dir(
+                &claude_dir.join("ccline"),
+                &claude_dir.join("claude-hud"),
+            );
+        }
+    }
+
     /// Initialize themes directory and create built-in theme files
     pub fn init_themes() -> Result<(), Box<dyn std::error::Error>> {
         let themes_dir = Self::get_themes_path();
@@ -32,7 +78,7 @@ impl ConfigLoader {
         fs::create_dir_all(&themes_dir)?;
 
         let builtin_themes = [
-            "cometix",
+            "claude-hud",
             "default",
             "minimal",
             "gruvbox",
@@ -63,12 +109,12 @@ impl ConfigLoader {
         Ok(())
     }
 
-    /// Get the themes directory path (~/.claude/ccline/themes/)
+    /// Get the themes directory path (~/.claude/claude-hud/themes/)
     pub fn get_themes_path() -> PathBuf {
         if let Some(home) = dirs::home_dir() {
-            home.join(".claude").join("ccline").join("themes")
+            home.join(".claude").join("claude-hud").join("themes")
         } else {
-            PathBuf::from(".claude/ccline/themes")
+            PathBuf::from(".claude/claude-hud/themes")
         }
     }
 
@@ -90,7 +136,7 @@ impl ConfigLoader {
             "minimal",
             "gruvbox",
             "nord",
-            "cometix",
+            "claude-hud",
             "powerline-dark",
             "powerline-light",
             "powerline-rose-pine",
@@ -142,12 +188,12 @@ impl Config {
         Ok(())
     }
 
-    /// Get the default config file path (~/.claude/ccline/config.toml)
+    /// Get the default config file path (~/.claude/claude-hud/config.toml)
     fn get_config_path() -> PathBuf {
         if let Some(home) = dirs::home_dir() {
-            home.join(".claude").join("ccline").join("config.toml")
+            home.join(".claude").join("claude-hud").join("config.toml")
         } else {
-            PathBuf::from(".claude/ccline/config.toml")
+            PathBuf::from(".claude/claude-hud/config.toml")
         }
     }
 
@@ -196,5 +242,50 @@ impl Config {
         let content = toml::to_string_pretty(self)?;
         println!("{content}");
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn migrate_legacy_dir_copies_once_and_keeps_old() {
+        let root = std::env::temp_dir().join(format!("claude-hud-migrate-{}", std::process::id()));
+        let _ = fs::remove_dir_all(&root);
+        let old = root.join("ccline");
+        let new = root.join("claude-hud");
+        fs::create_dir_all(old.join("themes")).unwrap();
+        fs::write(old.join("config.toml"), "theme = \"x\"").unwrap();
+        fs::write(old.join("themes").join("t.toml"), "a").unwrap();
+        fs::write(old.join("ccline"), "bin").unwrap();
+
+        assert!(ConfigLoader::migrate_legacy_dir(&old, &new).unwrap());
+        assert_eq!(
+            fs::read_to_string(new.join("config.toml")).unwrap(),
+            "theme = \"x\""
+        );
+        assert_eq!(
+            fs::read_to_string(new.join("themes").join("t.toml")).unwrap(),
+            "a"
+        );
+        assert!(!new.join("ccline").exists());
+        assert!(old.join("ccline").exists());
+        assert!(old.join("config.toml").exists());
+
+        // Second run is a no-op once the new dir exists
+        fs::write(old.join("config.toml"), "changed").unwrap();
+        assert!(!ConfigLoader::migrate_legacy_dir(&old, &new).unwrap());
+        assert_eq!(
+            fs::read_to_string(new.join("config.toml")).unwrap(),
+            "theme = \"x\""
+        );
+
+        // Missing old dir is a no-op
+        let none = root.join("none");
+        assert!(!ConfigLoader::migrate_legacy_dir(&root.join("missing"), &none).unwrap());
+        assert!(!none.exists());
+
+        fs::remove_dir_all(&root).unwrap();
     }
 }

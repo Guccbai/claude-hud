@@ -41,7 +41,7 @@ impl UpdateState {
         let config_dir = dirs::home_dir()
             .unwrap_or_default()
             .join(".claude")
-            .join("ccline");
+            .join("claude-hud");
 
         let state_file = config_dir.join(".update_state.json");
 
@@ -126,7 +126,7 @@ impl UpdateState {
         let config_dir = dirs::home_dir()
             .unwrap_or_default()
             .join(".claude")
-            .join("ccline");
+            .join("claude-hud");
 
         std::fs::create_dir_all(&config_dir)?;
         let state_file = config_dir.join(".update_state.json");
@@ -151,16 +151,26 @@ impl UpdateState {
     }
 }
 
-/// npm registry version check
-mod registry {
-    /// Check @cometix/ccline latest version from npm registry
-    pub fn check_for_updates() -> Result<Option<String>, Box<dyn std::error::Error>> {
-        let url = "https://registry.npmjs.org/@cometix/ccline/latest";
+/// GitHub repository that publishes claude-hud releases
+const GITHUB_REPO: &str = "Guccbai/claude-hud";
 
-        let response = ureq::get(url).header("Accept", "application/json").call()?;
+/// GitHub releases version check
+mod registry {
+    /// Check the latest release version from GitHub
+    pub fn check_for_updates() -> Result<Option<String>, Box<dyn std::error::Error>> {
+        let url = format!(
+            "https://api.github.com/repos/{}/releases/latest",
+            super::GITHUB_REPO
+        );
+
+        let response = ureq::get(&url)
+            .header("Accept", "application/vnd.github+json")
+            .header("User-Agent", "claude-hud")
+            .call()?;
 
         let data: serde_json::Value = response.into_body().read_json()?;
-        let latest = data["version"].as_str().ok_or("Missing version field")?;
+        let tag = data["tag_name"].as_str().ok_or("Missing tag_name field")?;
+        let latest = tag.trim_start_matches('v');
 
         let current = env!("CARGO_PKG_VERSION");
         let current_ver = semver::Version::parse(current)?;

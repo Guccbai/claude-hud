@@ -131,7 +131,10 @@ impl ModelConfig {
 
         // First, try to create default models.toml if it doesn't exist
         if let Some(home_dir) = dirs::home_dir() {
-            let user_models_path = home_dir.join(".claude").join("ccline").join("models.toml");
+            let user_models_path = home_dir
+                .join(".claude")
+                .join("claude-hud")
+                .join("models.toml");
             if !user_models_path.exists() {
                 let _ = Self::create_default_file(&user_models_path);
             }
@@ -139,7 +142,7 @@ impl ModelConfig {
 
         // Try loading from user config directory first, then local
         let config_paths = [
-            dirs::home_dir().map(|d| d.join(".claude").join("ccline").join("models.toml")),
+            dirs::home_dir().map(|d| d.join(".claude").join("claude-hud").join("models.toml")),
             Some(Path::new("models.toml").to_path_buf()),
         ];
 
@@ -253,9 +256,9 @@ impl ModelConfig {
     /// Create default model configuration file with minimal template
     pub fn create_default_file<P: AsRef<Path>>(path: P) -> Result<(), Box<dyn std::error::Error>> {
         // Add comments and examples to the template
-        let template_content = "# CCometixLine Model Configuration\n\
+        let template_content = "# Claude HUD Model Configuration\n\
              # This file defines model display names and context limits for different LLM models\n\
-             # File location: ~/.claude/ccline/models.toml\n\
+             # File location: ~/.claude/claude-hud/models.toml\n\
              #\n\
              # Claude models are automatically recognized (Sonnet, Opus, Haiku) with\n\
              # version extraction. You only need to add entries here for overrides or\n\
