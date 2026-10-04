@@ -1,5 +1,5 @@
 {
-  "name": "claude-hud-linux-arm64-musl",
+  "name": "@guccbai/claude-hud-linux-arm64-musl",
   "version": "0.0.0",
   "description": "Linux ARM64 binary (musl) for Claude HUD",
   "files": ["claude-hud"],

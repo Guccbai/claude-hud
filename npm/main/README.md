@@ -7,7 +7,7 @@ Forked from [Haleclipse/CCometixLine](https://github.com/Haleclipse/CCometixLine
 ## Installation
 
 ```bash
-npm install -g claude-hud
+npm install -g @guccbai/claude-hud
 ```
 
 ## Features
@@ -34,7 +34,7 @@ claude-hud --version
 Use npm mirror for faster installation:
 
 ```bash
-npm install -g claude-hud --registry https://registry.npmmirror.com
+npm install -g @guccbai/claude-hud --registry https://registry.npmmirror.com
 ```
 
 ## More Information

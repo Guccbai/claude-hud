@@ -1,5 +1,5 @@
 {
-  "name": "claude-hud-darwin-arm64",
+  "name": "@guccbai/claude-hud-darwin-arm64",
   "version": "0.0.0",
   "description": "macOS ARM64 binary for Claude HUD",
   "files": ["claude-hud"],

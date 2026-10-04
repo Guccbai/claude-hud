@@ -1,5 +1,5 @@
 {
-  "name": "claude-hud-linux-x64-musl",
+  "name": "@guccbai/claude-hud-linux-x64-musl",
   "version": "0.0.0",
   "description": "Linux x64 static binary for Claude HUD (musl libc)",
   "files": ["claude-hud"],

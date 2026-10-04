@@ -77,14 +77,14 @@ if (platform === 'linux') {
 }
 
 const packageMap = {
-  'darwin-x64': 'claude-hud-darwin-x64',
-  'darwin-arm64': 'claude-hud-darwin-arm64',
-  'linux-x64': 'claude-hud-linux-x64',
-  'linux-x64-musl': 'claude-hud-linux-x64-musl',
-  'linux-arm64': 'claude-hud-linux-arm64',
-  'linux-arm64-musl': 'claude-hud-linux-arm64-musl',
-  'win32-x64': 'claude-hud-win32-x64',
-  'win32-ia32': 'claude-hud-win32-x64', // Use 64-bit for 32-bit systems
+  'darwin-x64': '@guccbai/claude-hud-darwin-x64',
+  'darwin-arm64': '@guccbai/claude-hud-darwin-arm64',
+  'linux-x64': '@guccbai/claude-hud-linux-x64',
+  'linux-x64-musl': '@guccbai/claude-hud-linux-x64-musl',
+  'linux-arm64': '@guccbai/claude-hud-linux-arm64',
+  'linux-arm64-musl': '@guccbai/claude-hud-linux-arm64-musl',
+  'win32-x64': '@guccbai/claude-hud-win32-x64',
+  'win32-ia32': '@guccbai/claude-hud-win32-x64', // Use 64-bit for 32-bit systems
 };
 
 const packageName = packageMap[platformKey];
@@ -101,7 +101,7 @@ const binaryPath = path.join(__dirname, '..', 'node_modules', packageName, binar
 if (!fs.existsSync(binaryPath)) {
   console.error(`Error: Binary not found at ${binaryPath}`);
   console.error('This might indicate a failed installation or unsupported platform.');
-  console.error('Please try reinstalling: npm install -g claude-hud');
+  console.error('Please try reinstalling: npm install -g @guccbai/claude-hud');
   console.error(`Expected package: ${packageName}`);
   process.exit(1);
 }

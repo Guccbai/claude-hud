@@ -1,5 +1,5 @@
 {
-  "name": "claude-hud",
+  "name": "@guccbai/claude-hud",
   "version": "0.0.0",
   "description": "Claude HUD - High-performance Claude Code StatusLine tool",
   "bin": {
@@ -9,13 +9,13 @@
     "postinstall": "node scripts/postinstall.js"
   },
   "optionalDependencies": {
-    "claude-hud-darwin-x64": "0.0.0",
-    "claude-hud-darwin-arm64": "0.0.0",
-    "claude-hud-linux-x64": "0.0.0",
-    "claude-hud-linux-x64-musl": "0.0.0",
-    "claude-hud-linux-arm64": "0.0.0",
-    "claude-hud-linux-arm64-musl": "0.0.0",
-    "claude-hud-win32-x64": "0.0.0"
+    "@guccbai/claude-hud-darwin-x64": "0.0.0",
+    "@guccbai/claude-hud-darwin-arm64": "0.0.0",
+    "@guccbai/claude-hud-linux-x64": "0.0.0",
+    "@guccbai/claude-hud-linux-x64-musl": "0.0.0",
+    "@guccbai/claude-hud-linux-arm64": "0.0.0",
+    "@guccbai/claude-hud-linux-arm64-musl": "0.0.0",
+    "@guccbai/claude-hud-win32-x64": "0.0.0"
   },
   "repository": {
     "type": "git",
