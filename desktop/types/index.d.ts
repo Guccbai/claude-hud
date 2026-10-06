@@ -7,18 +7,16 @@ export type Hud = {
   cost: string
   context: Meter | null
   week: Meter | null
-  version: string
   repo: string
   turns: number
   startedAt: number
   tokens: Tokens | null
 }
-export type Turn = { seconds: number; tools: number }
 // 1 dashboard, 2 single row, 3 cards.
 export type Layout = 1 | 2 | 3
 
 declare module 'claude-code' {
   interface PluginState {
-    'hud-desktop': { snap: Hud | null; turn: Turn | null; running: string | null; total: Tokens | null; agents: string[]; layout: Layout }
+    'hud-desktop': { snap: Hud | null; running: string | null; total: Tokens | null; agents: string[]; layout: Layout }
   }
 }

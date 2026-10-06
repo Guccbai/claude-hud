@@ -57,7 +57,7 @@ export const add = (a: Tokens | null, b: Tokens): Tokens => ({
   cacheWrite: (a?.cacheWrite ?? 0) + b.cacheWrite,
 })
 
-export type Extra = Pick<Hud, 'version' | 'repo' | 'turns'> & { offsetMin: number }
+export type Extra = Pick<Hud, 'repo' | 'turns'> & { offsetMin: number }
 
 export const snapshot = (model: string, cwd: string, u: SessionUsage, now: number, x: Extra): Hud => {
   const c = u.context
@@ -69,7 +69,6 @@ export const snapshot = (model: string, cwd: string, u: SessionUsage, now: numbe
     cost: u.cost ? `$${u.cost.usd.toFixed(2)}` : '',
     context: c.percent === undefined ? null : { label: '上下文', percent: c.percent, note: `${num(c.tokens ?? 0)} / ${num(c.window)}` },
     week: w ? { label: '每周额度', percent: Math.round(w.percentUsed), note: '', resetIn: left(w.resetsAt, now), resetAt: resetAt(w.resetsAt, x.offsetMin), elapsed: elapsed(w.resetsAt, now, 7 * 86400000) } : null,
-    version: x.version,
     repo: x.repo,
     turns: x.turns,
     startedAt: u.startedAt,
@@ -77,13 +76,25 @@ export const snapshot = (model: string, cwd: string, u: SessionUsage, now: numbe
   }
 }
 
-export const LAYOUTS: Record<Layout, string> = { 1: '仪表盘', 2: '单行', 3: '卡片' }
+export const LAYOUTS: Record<Layout, string> = { 1: '仪表盘', 2: '单行', 3: '两行' }
 
 // `/hud` argument to a layout: 1-3 picks one, empty cycles, anything else is null.
 export const pickLayout = (arg: string, current: Layout): Layout | null => {
   const a = arg.trim()
   if (!a) return ((current % 3) + 1) as Layout
   return a === '1' || a === '2' || a === '3' ? (Number(a) as Layout) : null
+}
+
+export const PURPLE = '#a78bfa'
+const clamp = (p: number) => Math.min(100, Math.max(0, p))
+
+// 16x16 pie of usage `p` in `fill`; with `time`, a purple ring around it shows how far
+// through its window the limit is. Each arc is a dashed circle stroke starting at 12 o'clock.
+export const pie = (p: number, fill: string, time?: number) => {
+  const arc = (r: number, width: number, share: number, color: string) =>
+    share > 0 ? `<circle cx="8" cy="8" r="${r}" fill="none" stroke="${color}" stroke-width="${width}" stroke-dasharray="${((clamp(share) / 100) * 2 * Math.PI * r).toFixed(2)} 99" transform="rotate(-90 8 8)"/>` : ''
+  const ring = time === undefined ? '' : `<circle cx="8" cy="8" r="7.25" fill="none" stroke="#8883" stroke-width="1.5"/>${arc(7.25, 1.5, time, PURPLE)}`
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="5.5" fill="#8884"/>${arc(2.75, 5.5, p, fill)}${ring}</svg>`
 }
 
 // Subagent dots: centers of r=3 circles 4px apart, 10px between groups of 4.

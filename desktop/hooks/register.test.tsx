@@ -9,7 +9,6 @@ test('/hud switches layouts; the terminal gets no band', async ($, on) => {
   const a = on as any
   a('session.cwd', () => ({ value: '/tmp/x' }))
   a('session.model', () => ({ value: 'claude-opus-5-5' }))
-  a('session.version', () => ({ value: ({ version: '2.1.286' }) }))
   a('session.repo', () => ({ value: null }))
   a('session.turns', () => ({ value: 3 }))
   a('process.run', () => ({ value: ({ exitCode: 1, stdout: '', stderr: '' }) }))
@@ -25,7 +24,7 @@ test('/hud switches layouts; the terminal gets no band', async ($, on) => {
   await ($.session as any).start({ cwd: '/tmp/x', surface: 'desktop', isInteractive: true })
   const text = async (args: string) => (await $.command.run({ command: 'hud', args } as any)).text
   // [args, name, text only that layout shows, text it must not show]
-  for (const [args, name, has, lacks] of [['1', '仪表盘', /最近一次请求/, /^读取 /], ['2', '单行', /后重置/, /星期日/], ['', '卡片', /星期日/, /最近一次请求/]] as const) {
+  for (const [args, name, has, lacks] of [['1', '仪表盘', /最近一次请求/, /^读取 /], ['2', '单行', /20\.7万/, /星期日/], ['', '两行', /星期日/, /最近一次请求/]] as const) {
     expect(await text(args)).toBe(`HUD 已切换为「${name}」`)
     const ui = await $.ui.mount({ plugin: 'hud-desktop', surface: 'desktop', ...BAND })
     expect([name, !!(await ui.find({ type: 'Text', text: has }))]).toEqual([name, true])
@@ -43,6 +42,6 @@ test('/hud switches layouts; the terminal gets no band', async ($, on) => {
   await after.unmount()
   expect(await text('9')).toMatch(/^用法/)
   const term = await $.ui.mount({ plugin: 'hud-desktop', surface: 'terminal', ...BAND })
-  expect(await term.find({ type: 'Text', text: /Claude Code/ })).toBeUndefined()
+  expect(await term.find({ type: 'Text', text: /20\.7万/ })).toBeUndefined()
   await term.unmount()
 })
