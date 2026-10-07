@@ -1,4 +1,4 @@
-use super::{circle_gauge, util_color_256, Segment, SegmentData};
+use super::{util_color_256, Segment, SegmentData};
 use crate::config::{InputData, ModelConfig, SegmentId, TranscriptEntry};
 use std::collections::HashMap;
 use std::fs;
@@ -18,20 +18,6 @@ impl ContextWindowSegment {
         let model_config = ModelConfig::load();
         model_config.get_context_limit(model_id)
     }
-
-    /// Format a raw token count compactly, e.g. 124500 -> "124.5k", 850 -> "850".
-    fn format_token_count(tokens: u32) -> String {
-        if tokens >= 1000 {
-            let k = tokens as f64 / 1000.0;
-            if k.fract() == 0.0 {
-                format!("{}k", k as u32)
-            } else {
-                format!("{k:.1}k")
-            }
-        } else {
-            tokens.to_string()
-        }
-    }
 }
 
 impl Segment for ContextWindowSegment {
@@ -42,20 +28,10 @@ impl Segment for ContextWindowSegment {
         let context_used_token_opt = parse_transcript_usage(&input.transcript_path);
         let rate_opt = context_used_token_opt.map(|t| (t as f64 / context_limit as f64) * 100.0);
 
-        let percentage_display = match rate_opt {
+        let primary = match rate_opt {
             Some(r) if r.fract() == 0.0 => format!("{r:.0}%"),
             Some(r) => format!("{r:.1}%"),
             None => "-".to_string(),
-        };
-
-        // Pie gauge (matching usage) + percentage + token count, e.g. "◑ 62.3% 124.5k".
-        let primary = match (rate_opt, context_used_token_opt) {
-            (Some(r), Some(t)) => format!(
-                "{} {percentage_display} {}",
-                circle_gauge(r),
-                Self::format_token_count(t)
-            ),
-            _ => "-".to_string(),
         };
 
         let mut metadata = HashMap::new();

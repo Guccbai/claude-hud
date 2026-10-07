@@ -83,10 +83,10 @@ impl StatusLineGenerator {
             lines.push(joined);
         }
 
-        // Multi-row output gets a dim "⏵⏵" lead-in per row, echoing Claude
-        // Code's own footer hints; single-row output stays undecorated.
-        // Powerline capsules carry their own visual structure, so they skip it.
-        if lines.len() > 1 && self.config.style.separator != "\u{e0b0}" {
+        // Each row gets a dim "⏵⏵" lead-in, echoing Claude Code's own footer
+        // hints. Powerline capsules carry their own visual structure, so they
+        // skip it.
+        if self.config.style.separator != "\u{e0b0}" {
             for line in lines.iter_mut() {
                 *line = format!("\x1b[90m\u{23f5}\u{23f5}\x1b[0m {line}"); // ⏵⏵
             }

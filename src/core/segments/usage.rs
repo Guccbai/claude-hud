@@ -1,4 +1,4 @@
-use super::{circle_gauge, util_color_256, Segment, SegmentData};
+use super::{util_color_256, Segment, SegmentData};
 use crate::config::{InputData, RateLimits, SegmentId};
 use crate::utils::credentials;
 use chrono::{DateTime, Utc};
@@ -49,7 +49,6 @@ const RESET: &str = "\x1b[0m";
 /// A `None` window means the source didn't provide it (rendered as "-"),
 /// which is distinct from a freshly-reset 0% window.
 struct UsageData {
-    five_hour: Option<UsageWindow>,
     seven_day: Option<UsageWindow>,
     /// 7d Fable-only window; only rendered when the data source provides it.
     seven_day_fable: Option<UsageWindow>,
@@ -69,14 +68,12 @@ impl UsageSegment {
         DateTime::<Utc>::from_timestamp(epoch, 0).map(|dt| dt.to_rfc3339())
     }
 
-    /// Humanized reset info: ("4h12m", "04:49")-style (countdown, absolute)
-    /// pair. Countdown scales with the horizon: "38m" / "4h12m" / "3d15h".
-    /// The absolute part carries a relative day word only when the horizon
-    /// needs one: the 5h window shows bare "04:49" (unambiguous within 5h),
-    /// the 7d windows "明天 18:00" / "周六 18:00" / "07/12 周六 18:00".
+    /// Humanized reset info: ("4h12m", "明天 18:00")-style (countdown,
+    /// absolute) pair. Countdown scales with the horizon: "38m" / "4h12m" /
+    /// "3d15h". The absolute part: "今天 18:00" / "明天 18:00" /
+    /// "周六 18:00" / "07/12 周六 18:00".
     fn format_reset(
         reset_time_str: Option<&str>,
-        with_day_word: bool,
         now: DateTime<chrono::Local>,
     ) -> Option<(String, String)> {
         let dt = DateTime::parse_from_rfc3339(reset_time_str?).ok()?;
@@ -91,17 +88,13 @@ impl UsageSegment {
             format!("{m}m")
         };
         let hm = local.format("%H:%M");
-        let absolute = if !with_day_word {
-            hm.to_string()
-        } else {
-            let days = (local.date_naive() - now.date_naive()).num_days();
-            let weekday = super::weekday_zh(chrono::Datelike::weekday(&local));
-            match days {
-                0 => format!("今天 {hm}"),
-                1 => format!("明天 {hm}"),
-                2..=6 => format!("{weekday} {hm}"),
-                _ => format!("{} {weekday} {hm}", local.format("%m/%d")),
-            }
+        let days = (local.date_naive() - now.date_naive()).num_days();
+        let weekday = super::weekday_zh(chrono::Datelike::weekday(&local));
+        let absolute = match days {
+            0 => format!("今天 {hm}"),
+            1 => format!("明天 {hm}"),
+            2..=6 => format!("{weekday} {hm}"),
+            _ => format!("{} {weekday} {hm}", local.format("%m/%d")),
         };
         Some((countdown, absolute))
     }
@@ -133,7 +126,6 @@ impl UsageSegment {
         }
 
         UsageData {
-            five_hour,
             seven_day,
             seven_day_fable,
         }
@@ -287,10 +279,6 @@ impl UsageSegment {
             .unwrap_or(false);
 
         let from_cache = |c: ApiUsageCache| UsageData {
-            five_hour: c.five_hour_utilization.map(|util| UsageWindow {
-                util,
-                reset: c.five_hour_resets_at,
-            }),
             seven_day: c.seven_day_utilization.map(|util| UsageWindow {
                 util,
                 reset: c.resets_at,
@@ -312,10 +300,6 @@ impl UsageSegment {
                 };
                 self.save_cache(&cache);
                 Some(UsageData {
-                    five_hour: Some(UsageWindow {
-                        util: response.five_hour.utilization,
-                        reset: response.five_hour.resets_at,
-                    }),
                     seven_day: Some(UsageWindow {
                         util: response.seven_day.utilization,
                         reset: response.seven_day.resets_at,
@@ -348,55 +332,39 @@ impl Segment for UsageSegment {
             None => self.fetch_with_cache()?,
         };
 
-        // Icon reflects the highest-watermark window; color stays fixed (config).
-        let max_util = [&data.five_hour, &data.seven_day, &data.seven_day_fable]
-            .into_iter()
-            .flatten()
-            .map(|w| w.util)
-            .fold(0.0f64, f64::max);
-        let dynamic_icon = circle_gauge(max_util).to_string();
-
-        // Each window: dim label, gauge + percentage in its state color
+        // Each window: dim label, percentage in its state color
         // (utilization thresholds, not per-window decoration), then the
         // countdown as a primary value with the absolute reset time in
         // parentheses as secondary; "-" when the data source omits the
         // window (distinct from a real 0%).
         let now = chrono::Local::now();
-        let window_text = |label: &str, w: &Option<UsageWindow>, with_day_word: bool| match w {
+        let window_text = |label: &str, w: &Option<UsageWindow>| match w {
             Some(w) => {
-                let reset_part = Self::format_reset(w.reset.as_deref(), with_day_word, now)
+                let reset_part = Self::format_reset(w.reset.as_deref(), now)
                     .map(|(cd, abs)| format!("{LIGHT}{cd}{RESET} {DIM}({abs}){RESET}"))
                     .unwrap_or_else(|| format!("{DIM}?{RESET}"));
                 format!(
-                    "{DIM}{label} \x1b[38;5;{}m{} {}%{RESET} {reset_part}",
+                    "{DIM}{label} \x1b[38;5;{}m{}%{RESET} {reset_part}",
                     util_color_256(w.util),
-                    circle_gauge(w.util),
                     w.util.round() as u8,
                 )
             }
             None => format!("{DIM}{label} -{RESET}"),
         };
-        let mut primary = format!(
-            "{}\x1b[90m · \x1b[0m{}",
-            window_text("5h", &data.five_hour, false),
-            window_text("7d", &data.seven_day, true),
-        );
+        let mut primary = window_text("7d", &data.seven_day);
         if data.seven_day_fable.is_some() {
             use std::fmt::Write as _;
             let _ = write!(
                 primary,
                 "\x1b[90m · \x1b[0m{}",
-                window_text("fable", &data.seven_day_fable, true),
+                window_text("fable", &data.seven_day_fable),
             );
         }
-
-        let mut metadata = HashMap::new();
-        metadata.insert("dynamic_icon".to_string(), dynamic_icon);
 
         Some(SegmentData {
             primary,
             secondary: String::new(),
-            metadata,
+            metadata: HashMap::new(),
         })
     }
 
@@ -410,37 +378,28 @@ mod tests {
     use super::*;
     use chrono::{Duration, Local, TimeZone};
 
-    fn reset_after(now: DateTime<Local>, d: Duration, day_word: bool) -> Option<(String, String)> {
-        UsageSegment::format_reset(Some(&(now + d).to_rfc3339()), day_word, now)
+    fn reset_after(now: DateTime<Local>, d: Duration) -> Option<(String, String)> {
+        UsageSegment::format_reset(Some(&(now + d).to_rfc3339()), now)
     }
 
     #[test]
     fn format_reset_scales_with_horizon() {
         // Fri 2026-09-25 15:00 local.
         let now = Local.with_ymd_and_hms(2026, 9, 25, 15, 0, 0).unwrap();
-        let r = |d, w| reset_after(now, d, w).unwrap();
+        let r = |d| reset_after(now, d).unwrap();
 
         assert_eq!(
-            r(Duration::minutes(38), false),
-            ("38m".into(), "15:38".into())
+            r(Duration::minutes(38)),
+            ("38m".into(), "今天 15:38".into())
         );
-        assert_eq!(
-            r(Duration::minutes(4 * 60 + 12), false),
-            ("4h12m".into(), "19:12".into())
-        );
-        assert_eq!(r(Duration::hours(2), true).1, "今天 17:00");
-        assert_eq!(
-            r(Duration::days(1), true),
-            ("1d0h".into(), "明天 15:00".into())
-        );
-        assert_eq!(r(Duration::days(3), true).1, "周一 15:00");
-        assert_eq!(r(Duration::days(10), true).1, "10/05 周一 15:00");
+        assert_eq!(r(Duration::minutes(4 * 60 + 12)).0, "4h12m");
+        assert_eq!(r(Duration::hours(2)).1, "今天 17:00");
+        assert_eq!(r(Duration::days(1)), ("1d0h".into(), "明天 15:00".into()));
+        assert_eq!(r(Duration::days(3)).1, "周一 15:00");
+        assert_eq!(r(Duration::days(10)).1, "10/05 周一 15:00");
         // A reset already in the past clamps to zero instead of going negative.
-        assert_eq!(r(Duration::minutes(-5), false).0, "0m");
-        assert_eq!(
-            UsageSegment::format_reset(Some("garbage"), false, now),
-            None
-        );
-        assert_eq!(UsageSegment::format_reset(None, false, now), None);
+        assert_eq!(r(Duration::minutes(-5)).0, "0m");
+        assert_eq!(UsageSegment::format_reset(Some("garbage"), now), None);
+        assert_eq!(UsageSegment::format_reset(None, now), None);
     }
 }
